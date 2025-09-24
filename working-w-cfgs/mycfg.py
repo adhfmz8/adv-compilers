@@ -181,6 +181,31 @@ def mycfg():
                 print("    {} -> {};".format(name, succ))
         print("}")
 
+        entry_node = list(name2block.keys())[0]
+        # Get and print path lengths
+        path_lengths = get_path_lengths(cfg, entry_node)
+        print("Path lengths for {}:".format(func["name"]))
+        print(path_lengths)
+        print("\n")
+
+        # Get and print reverse postorder
+        rpo = reverse_postorder(cfg, entry_node)
+        print("Reverse postorder for {}:".format(func["name"]))
+        print(rpo)
+        print("\n")
+
+        # Get and print back edges
+        back_edges = find_back_edges(cfg, entry_node)
+        print("Back edges for {}:".format(func["name"]))
+        print(back_edges)
+        print("\n")
+
+        # Get and print whether the CFG is reducible
+        reducible = is_reducible(cfg, entry_node)
+        print("Is {} reducible?".format(func["name"]))
+        print(reducible)
+        print("\n")
+
 
 if __name__ == "__main__":
     mycfg()
