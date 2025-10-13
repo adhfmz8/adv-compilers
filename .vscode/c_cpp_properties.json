@@ -1,0 +1,17 @@
+{
+  "configurations": [
+    {
+      "name": "macOS",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "/opt/homebrew/opt/llvm@17/include"
+      ],
+      "defines": [],
+      "compilerPath": "/opt/homebrew/opt/llvm@17/bin/clang++",
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "macos-clang-x64"
+    }
+  ],
+  "version": 4
+}

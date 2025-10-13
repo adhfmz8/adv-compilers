@@ -1,0 +1,13 @@
+digraph "Dominator tree for 'gcd' function" {
+	label="Dominator tree for 'gcd' function";
+
+	Node0x15371f970 [shape=record,label="{%2:\l  %3 = icmp ne i32 %1, 0\l  br i1 %3, label %.lr.ph, label %7\l}"];
+	Node0x15371f970 -> Node0x15371f9c0;
+	Node0x15371f970 -> Node0x15371fab0;
+	Node0x15371f9c0 [shape=record,label="{.lr.ph:                                           \l  br label %4\l}"];
+	Node0x15371f9c0 -> Node0x15371fa10;
+	Node0x15371fa10 [shape=record,label="{%4:\l4:                                                \l  %.03 = phi i32 [ %0, %.lr.ph ], [ %.012, %4 ]\l  %.012 = phi i32 [ %1, %.lr.ph ], [ %5, %4 ]\l  %5 = srem i32 %.03, %.012\l  %6 = icmp ne i32 %5, 0\l  br i1 %6, label %4, label %._crit_edge, !llvm.loop !5\l}"];
+	Node0x15371fa10 -> Node0x15371fa60;
+	Node0x15371fa60 [shape=record,label="{._crit_edge:                                      \l  %split = phi i32 [ %.012, %4 ]\l  br label %7\l}"];
+	Node0x15371fab0 [shape=record,label="{%7:\l7:                                                \l  %.0.lcssa = phi i32 [ %split, %._crit_edge ], [ %0, %2 ]\l  ret i32 %.0.lcssa\l}"];
+}

@@ -1,0 +1,12 @@
+digraph "CFG for 'max' function" {
+	label="CFG for 'max' function";
+
+	Node0x129f369e0 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{%2:\l  %3 = icmp sgt i32 %0, %1\l  br i1 %3, label %4, label %5\l|{<s0>T|<s1>F}}"];
+	Node0x129f369e0:s0 -> Node0x129f36a20;
+	Node0x129f369e0:s1 -> Node0x129f36b40;
+	Node0x129f36a20 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#f59c7d70",label="{%4:\l4:                                                \l  br label %6\l}"];
+	Node0x129f36a20 -> Node0x129f36c60;
+	Node0x129f36b40 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#f59c7d70",label="{%5:\l5:                                                \l  br label %6\l}"];
+	Node0x129f36b40 -> Node0x129f36c60;
+	Node0x129f36c60 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{%6:\l6:                                                \l  %.0 = phi i32 [ %0, %4 ], [ %1, %5 ]\l  ret i32 %.0\l}"];
+}

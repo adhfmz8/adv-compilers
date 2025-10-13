@@ -1,0 +1,11 @@
+digraph "Dominator tree for 'max' function" {
+	label="Dominator tree for 'max' function";
+
+	Node0x12490e7e0 [shape=record,label="{%2:\l  %3 = icmp sgt i32 %0, %1\l  br i1 %3, label %4, label %5\l}"];
+	Node0x12490e7e0 -> Node0x12490ec00;
+	Node0x12490e7e0 -> Node0x12490ec50;
+	Node0x12490e7e0 -> Node0x12490e8a0;
+	Node0x12490ec00 [shape=record,label="{%4:\l4:                                                \l  br label %6\l}"];
+	Node0x12490ec50 [shape=record,label="{%6:\l6:                                                \l  %.0 = phi i32 [ %0, %4 ], [ %1, %5 ]\l  ret i32 %.0\l}"];
+	Node0x12490e8a0 [shape=record,label="{%5:\l5:                                                \l  br label %6\l}"];
+}

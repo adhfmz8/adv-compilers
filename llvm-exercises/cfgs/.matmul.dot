@@ -1,0 +1,26 @@
+digraph "CFG for 'matmul' function" {
+	label="CFG for 'matmul' function";
+
+	Node0x151f2c390 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#7396f570",label="{%3:\l  br label %4\l}"];
+	Node0x151f2c390 -> Node0x151f2c3d0;
+	Node0x151f2c3d0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#cedaeb70",label="{%4:\l4:                                                \l  %.037 = phi i32 [ 0, %3 ], [ %31, %30 ]\l  br label %5\l}"];
+	Node0x151f2c3d0 -> Node0x151f2c740;
+	Node0x151f2c740 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#f7a88970",label="{%5:\l5:                                                \l  %.026 = phi i32 [ 0, %4 ], [ %27, %26 ]\l  br label %6\l}"];
+	Node0x151f2c740 -> Node0x151f2c990;
+	Node0x151f2c990 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{%6:\l6:                                                \l  %.05 = phi i32 [ 0, %5 ], [ %19, %18 ]\l  %.014 = phi double [ 0.000000e+00, %5 ], [ %17, %18 ]\l  %7 = sext i32 %.037 to i64\l  %8 = getelementptr inbounds [512 x double], ptr %0, i64 %7\l  %9 = sext i32 %.05 to i64\l  %10 = getelementptr inbounds [512 x double], ptr %8, i64 0, i64 %9\l  %11 = load double, ptr %10, align 8\l  %12 = sext i32 %.05 to i64\l  %13 = getelementptr inbounds [512 x double], ptr %1, i64 %12\l  %14 = sext i32 %.026 to i64\l  %15 = getelementptr inbounds [512 x double], ptr %13, i64 0, i64 %14\l  %16 = load double, ptr %15, align 8\l  %17 = call double @llvm.fmuladd.f64(double %11, double %16, double %.014)\l  br label %18\l}"];
+	Node0x151f2c990 -> Node0x151f2caa0;
+	Node0x151f2caa0 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{%18:\l18:                                               \l  %19 = add nsw i32 %.05, 1\l  %20 = icmp slt i32 %19, 512\l  br i1 %20, label %6, label %21, !llvm.loop !5\l|{<s0>T|<s1>F}}"];
+	Node0x151f2caa0:s0 -> Node0x151f2c990;
+	Node0x151f2caa0:s1 -> Node0x15280f430;
+	Node0x15280f430 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#f7a88970",label="{%21:\l21:                                               \l  %.01.lcssa = phi double [ %17, %18 ]\l  %22 = sext i32 %.037 to i64\l  %23 = getelementptr inbounds [512 x double], ptr %2, i64 %22\l  %24 = sext i32 %.026 to i64\l  %25 = getelementptr inbounds [512 x double], ptr %23, i64 0, i64 %24\l  store double %.01.lcssa, ptr %25, align 8\l  br label %26\l}"];
+	Node0x15280f430 -> Node0x151f2c850;
+	Node0x151f2c850 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#f7a88970",label="{%26:\l26:                                               \l  %27 = add nsw i32 %.026, 1\l  %28 = icmp slt i32 %27, 512\l  br i1 %28, label %5, label %29, !llvm.loop !7\l|{<s0>T|<s1>F}}"];
+	Node0x151f2c850:s0 -> Node0x151f2c740;
+	Node0x151f2c850:s1 -> Node0x15280f470;
+	Node0x15280f470 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#cedaeb70",label="{%29:\l29:                                               \l  br label %30\l}"];
+	Node0x15280f470 -> Node0x151f2c550;
+	Node0x151f2c550 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#cedaeb70",label="{%30:\l30:                                               \l  %31 = add nsw i32 %.037, 1\l  %32 = icmp slt i32 %31, 512\l  br i1 %32, label %4, label %33, !llvm.loop !8\l|{<s0>T|<s1>F}}"];
+	Node0x151f2c550:s0 -> Node0x151f2c3d0;
+	Node0x151f2c550:s1 -> Node0x15280faf0;
+	Node0x15280faf0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#7396f570",label="{%33:\l33:                                               \l  ret void\l}"];
+}

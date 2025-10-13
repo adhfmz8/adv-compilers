@@ -1,0 +1,2 @@
+➜  cfgs git:(main) ✗ opt -passes="print<loops>" ../gcd_canonical.ll -disable-output
+Parallel Loop at depth 1 containing: %4<header><latch><exiting>
