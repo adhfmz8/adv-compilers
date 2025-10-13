@@ -16,3 +16,11 @@ clang++ -fPIC -shared LoopInfoExample.cpp -o LoopInfoExample.dylib \
 -lLLVM
 
 `opt -load-pass-plugin=./LoopInfoExample.dylib -passes="loop-info-example" -disable-output gcd_canonical.ll`
+
+## Example output:
+
+Analyzing function: gcd
+Loop at depth1
+with preheader: %.lr.ph
+with latch: %4
+with header: %4
