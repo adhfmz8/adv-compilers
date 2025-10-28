@@ -1,0 +1,18 @@
+digraph "Call graph: vector.ll" {
+	label="Call graph: vector.ll";
+
+	Node0x6000033ceaf0 [shape=record,label="{cosine_similarity}"];
+	Node0x6000033ceaf0 -> Node0x6000033ceb80;
+	Node0x6000033ceaf0 -> Node0x6000033cec10;
+	Node0x6000033ceb80 [shape=record,label="{dot}"];
+	Node0x6000033ceb80 -> Node0x6000033cec40;
+	Node0x6000033cec10 [shape=record,label="{norm}"];
+	Node0x6000033cec10 -> Node0x6000033ceb80;
+	Node0x6000033cec10 -> Node0x6000033ced00;
+	Node0x6000033ced30 [shape=record,label="{main}"];
+	Node0x6000033ced30 -> Node0x6000033ced60;
+	Node0x6000033ced30 -> Node0x6000033ceaf0;
+	Node0x6000033ced60 [shape=record,label="{llvm.memcpy.p0.p0.i64}"];
+	Node0x6000033cec40 [shape=record,label="{llvm.fmuladd.f64}"];
+	Node0x6000033ced00 [shape=record,label="{llvm.sqrt.f64}"];
+}
