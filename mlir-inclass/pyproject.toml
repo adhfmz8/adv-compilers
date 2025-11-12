@@ -1,0 +1,10 @@
+[project]
+name = "mlir-inclass"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "llvmlite>=0.45.1",
+    "numpy>=2.3.4",
+]
