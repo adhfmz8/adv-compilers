@@ -1,0 +1,8 @@
+digraph "MemorySSA_demo" {
+  node [shape=box, style=filled, fillcolor=lightgray];
+  n0 [label="1 = MemoryDef(liveOnEntry)"];
+  n2 [label="MemoryUse(2)"];
+  n1 [label="2 = MemoryDef(1)"];
+  n1 -> n2;
+  n0 -> n1;
+}
