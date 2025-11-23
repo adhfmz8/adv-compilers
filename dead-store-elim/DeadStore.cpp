@@ -1,7 +1,10 @@
+#include "llvm/ADT/SmallPtrSet.h"
+#include "llvm/ADT/SmallVector.h"
 #include "llvm/Analysis/AliasAnalysis.h"
 #include "llvm/Analysis/MemorySSA.h"
 #include "llvm/Analysis/MemorySSAUpdater.h"
 #include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/IR/PassManager.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
@@ -10,81 +13,72 @@
 using namespace llvm;
 
 struct DeadStorePass : PassInfoMixin<DeadStorePass> {
-  bool hasInterveningLoad(MemoryDef* MD, MemoryDef* NextDef, MemorySSA& MSSA,
-                          AAManager::Result& AA) {
-    Instruction* Inst = MD->getMemoryInst();
-    Instruction* NextInst = NextDef->getMemoryInst();
-    if (!Inst || !NextInst) return true;
+  bool hasInterveningLoad(StoreInst* EarlierStore, StoreInst* LaterStore,
+                          AAResults& AA) {
+    if (EarlierStore->getParent() != LaterStore->getParent()) return true;
 
-    MemoryLocation Loc = MemoryLocation::get(Inst);
+    for (auto It = EarlierStore->getIterator(); It != LaterStore->getIterator();
+         ++It) {
+      Instruction& I = *It;
 
-    SmallVector<MemoryAccess*, 8> WorkList;
-    SmallPtrSet<MemoryAccess*, 16> Visited;
+      if (&I == EarlierStore) continue;
 
-    WorkList.push_back(MD);
-    Visited.insert(MD);
-
-    while (!WorkList.empty()) {
-      MemoryAccess* MA = WorkList.pop_back_val();
-
-      for (Use& U : MA->uses()) {
-        MemoryAccess* UserMA = cast<MemoryAccess>(U.getUser());
-        if (!Visited.insert(UserMA).second) continue;
-
-        if (UserMA == NextDef) continue;
-
-        if (auto* MU = dyn_cast<MemoryUse>(UserMA)) {
-          Instruction* LoadInst = MU->getMemoryInst();
-          if (!LoadInst) continue;
-
-          MemoryLocation UseLoc = MemoryLocation::get(LoadInst);
-          // If the use aliases the same location as the original store
-          if (AA.alias(Loc, UseLoc) != AliasResult::NoAlias) {
-            return true;
-          }
+      if (auto* LI = dyn_cast<LoadInst>(&I)) {
+        if (AA.alias(MemoryLocation::get(EarlierStore),
+                     MemoryLocation::get(LI)) != AliasResult::NoAlias) {
+          return true;
         }
-        WorkList.push_back(UserMA);
       }
     }
-    return true;
+    return false;
   }
+
   PreservedAnalyses run(Function& F, FunctionAnalysisManager& AM) {
-    auto& MSSAResult = AM.getResult<MemorySSAAnalysis>(F);
-    auto& MSSA = MSSAResult.getMSSA();
+    auto& MSSA = AM.getResult<MemorySSAAnalysis>(F).getMSSA();
+
     auto& AA = AM.getResult<AAManager>(F);
-    MemorySSAUpdater Updater(&MSSA);
-    bool changed = false;
+
+    SmallVector<StoreInst*, 16> DeadStores;
 
     for (auto& BB : F) {
       for (auto& I : BB) {
-        auto* SI = dyn_cast<StoreInst>(&I);
-        if (!SI) continue;
+        auto* LaterStore = dyn_cast<StoreInst>(&I);
+        if (!LaterStore) continue;
 
-        auto* MA = MSSA.getMemoryAccess(SI);
-        if (!MA) continue;
-        auto* MD = dyn_cast<MemoryDef>(MA);
-        if (!MD) continue;
+        auto* LaterDef =
+            dyn_cast_or_null<MemoryDef>(MSSA.getMemoryAccess(LaterStore));
+        if (!LaterDef) continue;
 
-        auto* Clobber = MSSA.getWalker()->getClobberingMemoryAccess(MD);
-        if (auto* NextDef = dyn_cast<MemoryDef>(Clobber)) {
-          auto* NextInst = dyn_cast<StoreInst>(NextDef->getMemoryInst());
-          if (!NextInst) continue;
+        auto* Clobber = MSSA.getWalker()->getClobberingMemoryAccess(LaterDef);
 
-          if (AA.alias(MemoryLocation::get(SI),
-                       MemoryLocation::get(NextInst)) ==
-              AliasResult::MustAlias) {
-            if (!hasInterveningLoad(MD, NextDef, MSSA, AA)) {
-              errs() << "Removing dead store: " << *SI << "\n";
-              Updater.removeMemoryAccess(SI);
-              SI->eraseFromParent();
-              changed = true;
+        if (auto* EarlierDef = dyn_cast<MemoryDef>(Clobber)) {
+          Instruction* EarlierInst = EarlierDef->getMemoryInst();
+
+          if (auto* EarlierStore = dyn_cast_or_null<StoreInst>(EarlierInst)) {
+            if (AA.alias(MemoryLocation::get(LaterStore),
+                         MemoryLocation::get(EarlierStore)) ==
+                AliasResult::MustAlias) {
+              if (!hasInterveningLoad(EarlierStore, LaterStore, AA)) {
+                DeadStores.push_back(EarlierStore);
+              }
             }
           }
         }
       }
     }
 
-    return changed ? PreservedAnalyses::none() : PreservedAnalyses::all();
+    if (DeadStores.empty()) {
+      return PreservedAnalyses::all();
+    }
+
+    MemorySSAUpdater Updater(&MSSA);
+    for (StoreInst* SI : DeadStores) {
+      errs() << "Removing dead store: " << *SI << "\n";
+      Updater.removeMemoryAccess(SI);
+      SI->eraseFromParent();
+    }
+
+    return PreservedAnalyses::none();
   }
 };
 
@@ -92,11 +86,6 @@ extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
 llvmGetPassPluginInfo() {
   return {LLVM_PLUGIN_API_VERSION, "DeadStoreDemoPass", "v1.1",
           [](PassBuilder& PB) {
-            PB.registerAnalysisRegistrationCallback(
-                [](FunctionAnalysisManager& FAM) {
-                  FAM.registerPass([] { return MemorySSAAnalysis(); });
-                });
-
             PB.registerPipelineParsingCallback(
                 [](StringRef Name, FunctionPassManager& FPM,
                    ArrayRef<PassBuilder::PipelineElement>) {
