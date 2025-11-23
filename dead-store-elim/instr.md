@@ -22,9 +22,15 @@ opt -passes=mem2reg test/demo2.ll -S -o test/demo2_simplified.ll`
 
 * pointers that must or may alias
 
+# FOR TESTING
+
 clang++ -std=c++17 -fPIC -shared DeadStore.cpp -o libDeadStore.dylib \
   $(llvm-config --cxxflags --ldflags | tr '\n' ' ') -lLLVM
 
 opt -load-pass-plugin ./libDeadStore.dylib \
     -passes='mem2reg,dead-store-demo' \
     -disable-output ./test/demo2.ll
+
+opt -load-pass-plugin ./libDeadStore.dylib \
+    -passes=dead-store-demo \
+    -disable-output ./test/alias_test.ll
